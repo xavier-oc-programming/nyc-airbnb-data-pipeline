@@ -30,13 +30,14 @@ class-based architecture used here can be dropped into any data project.
 0. [Prerequisites](#0-prerequisites)
 1. [Quick start](#1-quick-start)
 2. [Project structure](#2-project-structure)
-3. [Pipeline steps](#3-pipeline-steps)
-4. [Visualisations](#4-visualisations)
-5. [Key findings](#5-key-findings)
-6. [Module reference](#6-module-reference)
-7. [Dataset schema](#7-dataset-schema)
-8. [Design decisions](#8-design-decisions)
-9. [Dependencies](#9-dependencies)
+3. [Pipeline blueprint](#3-pipeline-blueprint)
+4. [Pipeline steps](#4-pipeline-steps)
+5. [Visualisations](#5-visualisations)
+6. [Key findings](#6-key-findings)
+7. [Module reference](#7-module-reference)
+8. [Dataset schema](#8-dataset-schema)
+9. [Design decisions](#9-design-decisions)
+10. [Dependencies](#10-dependencies)
 
 ---
 
@@ -94,7 +95,35 @@ data-preprocessing-pipeline/
 
 ---
 
-## 3. Pipeline steps
+## 3. Pipeline blueprint
+
+`pipeline.py` is designed as a reusable blueprint — not a one-off script tied to this dataset. The four classes are independent of each other and can be imported individually into any data project. Point `DataLoader` at a different CSV, swap out the column names in `DataCleaner`, and the same cleaning logic applies.
+
+| Class | Role | Import |
+|---|---|---|
+| `DataLoader` | Reads a CSV and surfaces shape, dtypes, sample rows, and per-column missing counts. No mutations — observation only. | `from pipeline import DataLoader` |
+| `DataCleaner` | Applies all transformations in sequence: fill nulls → drop duplicates → cap outliers → encode categoricals → scale numerics. Every change is logged to an internal report dict. | `from pipeline import DataCleaner` |
+| `DataVisualizer` | Takes the raw and clean DataFrames and generates five before/after diagnostic charts, saved to `./plots/`. | `from pipeline import DataVisualizer` |
+| `PipelineReport` | Reads the report dict from `DataCleaner` and prints a formatted summary of every transformation applied. | `from pipeline import PipelineReport` |
+
+Each class returns `self` from its transformation methods, so steps can be chained:
+
+```python
+cleaner = DataCleaner(raw_df)
+clean_df = (
+    cleaner
+    .handle_missing_values()
+    .remove_duplicates()
+    .fix_outliers()
+    .encode_categoricals()
+    .scale_numerics()
+    .get_clean_df()
+)
+```
+
+---
+
+## 4. Pipeline steps
 
 The pipeline runs in a fixed sequence. Each step is a method on the relevant class; the entire sequence can be triggered with a single `python pipeline.py`.
 
@@ -161,7 +190,7 @@ A formatted summary is printed to stdout with before/after row counts, all imput
 
 ---
 
-## 4. Visualisations
+## 5. Visualisations
 
 All five charts are saved automatically to `./plots/` when `pipeline.py` runs.
 
@@ -206,7 +235,7 @@ After cleaning, `calculated_host_listings_count` and `availability_365` show the
 
 ---
 
-## 5. Key findings
+## 6. Key findings
 
 All numbers are from a live run of the pipeline on the real dataset.
 
@@ -227,7 +256,7 @@ All numbers are from a live run of the pipeline on the real dataset.
 
 ---
 
-## 6. Module reference
+## 7. Module reference
 
 ### `DataLoader`
 
@@ -271,7 +300,7 @@ All numbers are from a live run of the pipeline on the real dataset.
 
 ---
 
-## 7. Dataset schema
+## 8. Dataset schema
 
 All columns from `AB_NYC_2019.csv` and how the pipeline treats them.
 
@@ -296,7 +325,7 @@ All columns from `AB_NYC_2019.csv` and how the pipeline treats them.
 
 ---
 
-## 8. Design decisions
+## 9. Design decisions
 
 ### Why IQR capping instead of dropping outliers
 
@@ -316,7 +345,7 @@ A flat script of functions works for a one-off analysis but makes reuse harder: 
 
 ---
 
-## 9. Dependencies
+## 10. Dependencies
 
 | Package | Used in | Purpose |
 |---|---|---|
