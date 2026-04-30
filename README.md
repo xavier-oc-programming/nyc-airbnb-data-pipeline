@@ -1,4 +1,4 @@
-# data-preprocessing-pipeline
+# nyc-airbnb-data-pipeline
 
 ![Python](https://img.shields.io/badge/Python-3.11%2B-blue?logo=python&logoColor=white)
 ![Pandas](https://img.shields.io/badge/Pandas-2.2-150458?logo=pandas&logoColor=white)
@@ -52,8 +52,8 @@ class-based architecture used here can be dropped into any data project.
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/xavier-oc-programming/data-preprocessing-pipeline.git
-cd data-preprocessing-pipeline
+git clone https://github.com/xavier-oc-programming/nyc-airbnb-data-pipeline.git
+cd nyc-airbnb-data-pipeline
 
 # 2. Create and activate a virtual environment
 python3 -m venv venv
